@@ -359,14 +359,7 @@ resource "null_resource" "ray_up" {
     }
 }
 
-resource "time_sleep" "wait_for_ray_worker_nodes_to_become_alive_in_cluster" {
-  depends_on = [null_resource.ray_up]
-
-  create_duration = "20s"
-}
-
 resource "null_resource" "ray_serve_run" {
-    depends_on = [ time_sleep.wait_for_ray_worker_nodes_to_become_alive_in_cluster ]
 
     connection {
 		type    	= "ssh"
