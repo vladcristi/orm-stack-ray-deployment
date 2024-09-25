@@ -1,0 +1,32 @@
+proxy_location: EveryNode
+
+http_options:
+  host: 0.0.0.0
+  port: 8000
+
+grpc_options:
+  port: 9000
+  grpc_servicer_functions: []
+
+logging_config:
+  encoding: TEXT
+  log_level: INFO
+  logs_dir: null
+  enable_access_log: true
+
+applications:
+- name: default
+  route_prefix: /
+  import_path: text_ml:app
+  runtime_env: 
+    working_dir: "https://github.com/vladcristi/orm-stack-ray/archive/refs/heads/main.zip" 
+    pip:
+      - torch
+      - transformers
+  deployments:
+  - name: Translator
+    num_replicas: 3
+    user_config:
+      language: french
+  - name: Summarizer
+    num_replicas: 3

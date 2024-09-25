@@ -1,0 +1,156 @@
+## Copyright © 2024, Oracle and/or its affiliates. 
+## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
+
+title: "Deploy Ray cluster on A10s"
+stackDescription: "Deploy Ray cluster on A10s instances"
+schemaVersion: 1.1.0
+version: "20190404"
+locale: "en"
+
+variableGroups:
+- title: General Configuration
+  visible: false
+  variables:
+  - tenancy_ocid
+  - region
+
+- title: Network Configuration
+  visible: true
+  variables:
+    - create_network_components
+
+- title: Required Configuration for Network Infrastructure
+  visible: true  
+  variables:
+  - compartment_ocid
+  - vcn_id
+  - public_subnet_id
+  - private_subnet_id
+  - vcn_cidr_block
+  - pubsub_cidr_block
+  - privsub_cidr_block
+
+- title: Required Configuration for Ray Cluster
+  visible: true  
+  variables:
+  - bastion_display_name
+  - no_ray_nodes
+  - nodes_name_prefix
+  - ssh_public_key
+  - ad
+
+
+variables:
+  compartment_ocid:
+    type: oci:identity:compartment:id
+    required: true
+    visible: true
+    title: "Compartment"
+    description: "Choose compartment where you want to deploy"
+
+  create_network_components:
+    type: boolean
+    default: true
+    title: Create new VCN
+    description: "Create new VCN with proper configuration for ray cluster (If not, you should have proper configuration of network for ray cluster nodes to communicate and bastion to be able to deploy and communicate with cluster nodes)"  
+
+  vcn_id:
+    title: Select VCN for the Ray cluster 
+    description: Select the existing VCN for the Ray cluster.
+    type: oci:core:vcn:id
+    dependsOn:
+      compartmentId: ${compartment_ocid}
+    visible:
+      not:
+        - ${create_network_components}
+
+  public_subnet_id:
+    type: oci:core:subnet:id
+    title: "Public Subnet"
+    description: "The Subnet where will deploy the bastion"
+    dependsOn:
+      compartmentId: ${compartment_ocid}
+      vcnId: ${vcn_id}
+    required: true
+    visible:
+      not:
+        - ${create_network_components}
+
+  private_subnet_id:
+    type: oci:core:subnet:id
+    title: "Private Subnet"
+    description: "The Subnet where will deploy the ray cluster"
+    dependsOn:
+      compartmentId: ${compartment_ocid}
+      vcnId: ${vcn_id}
+    required: true 
+    visible:
+      not:
+        - ${create_network_components}
+
+  vcn_cidr_block:
+    type: string
+    pattern: "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\/(?:[1][6-9])|(?:2[0-8])$"
+    title: VCN CIDR Block
+    description: The CIDR block to use with the new VCN.
+    default: 10.0.0.0/16
+    required: true
+    visible: ${create_network_components}
+
+  pubsub_cidr_block:
+    type: string
+    pattern: "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\/(?:[1][6-9])|(?:2[0-9])$"
+    title: Bastion subnet CIDR
+    description: The CIDR block used for the bastion subnet.
+    default: 10.0.0.0/24
+    required: true
+    visible: ${create_network_components}
+
+  privsub_cidr_block:
+    type: string
+    pattern: "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\/(?:[1][6-9])|(?:2[0-9])$"
+    title: Ray cluster subnet CIDR
+    description: The CIDR block used for the ray cluster subnet.
+    default: 10.0.1.0/24
+    required: true
+    visible: ${create_network_components}
+  
+  bastion_display_name:
+    type: string
+    required: true
+    visible: true
+    title: "Bastion display name"
+    description: "Bastion display name"
+
+  nodes_name_prefix:
+    type: string
+    required: true
+    visible: true
+    title: "Nodes prefix display name"
+    description: "Nodes prefix display name"
+
+  no_ray_nodes:
+    type: number
+    title: "Number of nodes in Ray cluster (head included)"
+    description: "Number of nodes in Ray cluster (head included)"
+    required: true
+    visible: true
+
+  ssh_public_key:
+    type: string
+    title: "Public SSH Key"
+    description: "Choose public SSH Key to be uploaded into compute instances."
+    required: true
+  ad:
+    type: oci:identity:availabilitydomain:name
+    title: "availability domain"
+    description: "Choose availability domain"
+    dependsOn:
+      compartmentId: ${compartment_ocid}
+    required: true
+  
+outputGroups:
+- title: "Access details"
+  outputs:
+    - ${bastion_ip}
+    - ${ray_nodes_ips}
