@@ -8,3 +8,7 @@ output "bastion_ip" {
 output "ray_nodes_ips" {
     value = [oci_core_instance.ray_nodes[*].private_ip ]
 }
+
+output "ray_head_ip" {
+    value = [oci_core_instance.ray_nodes[0].public_ip ]
+}

@@ -154,3 +154,4 @@ outputGroups:
   outputs:
     - ${bastion_ip}
     - ${ray_nodes_ips}
+    - ${ray_head_ip}

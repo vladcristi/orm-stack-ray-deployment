@@ -18,6 +18,8 @@ sudo systemctl start docker
 sudo systemctl enable docker
 sudo usermod -aG docker $USER
 
+docker pull rayproject/ray:latest-gpu
+
 
 sudo firewall-cmd --zone=trusted --permanent --add-source=10.0.0.0/16
 sudo firewall-cmd --permanent --add-port=8265/tcp
