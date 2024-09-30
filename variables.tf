@@ -45,7 +45,7 @@ variable no_ray_nodes {
 
 variable ssh_public_key {
     type = string
-    default = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEWqxhVnQD/VtbOBTO3ofNhQk3z9v1rxa+Fnra2wv6Hy gvlad@gvlad-mac"
+    default = ""
 }
 
 variable ad {

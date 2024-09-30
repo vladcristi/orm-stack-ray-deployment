@@ -360,6 +360,7 @@ resource "null_resource" "ray_up" {
 }
 
 resource "null_resource" "ray_serve_run" {
+    depends_on = [ null_resource.ray_up ]
 
     connection {
 		type    	= "ssh"
